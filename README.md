@@ -16,3 +16,9 @@ An end-to-end Financial Tech (FinTech) dashboard that combines real-time market 
 * ML Models: HuggingFace Transformers (FinBERT), Prophet
 
 * Deployment: Streamlit Cloud
+
+## Working Sample
+
+https://github.com/user-attachments/assets/2fde8f81-4a15-43da-b618-b7f0285fc317
+
+
