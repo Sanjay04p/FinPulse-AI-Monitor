@@ -1,0 +1,11 @@
+finnhub-python 
+transformers 
+torch
+python-dotenv
+streamlit 
+yfinance
+plotly
+lxml 
+html5lib
+requests
+prophet
