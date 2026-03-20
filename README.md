@@ -21,4 +21,18 @@ An end-to-end Financial Tech (FinTech) dashboard that combines real-time market 
 
 https://github.com/user-attachments/assets/2fde8f81-4a15-43da-b618-b7f0285fc317
 
+## 🏗️ System Design & Data Pipeline
+
+The project utilizes a hybrid architecture that correlates quantitative market data with qualitative news sentiment.
+
+![graphviz (1)](https://github.com/user-attachments/assets/19793423-8ab5-4ba4-a567-069b0e0dd1e1)
+
+* **Sentiment Engine:** Leverages `FinBERT` (a domain-specific BERT model) to convert subjective news into a -1 to +1 sentiment score.
+* **Forecasting Engine:** Uses `Meta Prophet` to model seasonality and trends for a 7-day lookahead.
+* **Correlation Logic:** Merges yFinance price streams with sentiment timestamps to visualize how news "pulses" impact price action.
+
+
+
+
+
 
