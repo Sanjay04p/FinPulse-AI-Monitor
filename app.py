@@ -142,7 +142,7 @@ if prices is not None and not prices.empty:
                 ))
                 fig_sent.add_hline(y=0, line_dash="dot", line_color="gray")
                 fig_sent.update_layout(template="plotly_dark", height=500)
-                st.plotly_chart(fig_sent, use_container_width=True)
+                st.plotly_chart(fig_sent, width='stretch')
             else:
                 st.info("Not enough news data to build a trend line.")
 
