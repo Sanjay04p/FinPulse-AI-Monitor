@@ -6,6 +6,10 @@ def generate_forecast(df, days=7):
     Takes a dataframe with 'Date' and 'Close' prices.
     Returns a dataframe with the next 'days' predicted.
     """
+
+    if df is None or df.empty:
+        print("Warning: Received empty DataFrame for forecasting.")
+        return None
     # 1. Prepare Data
     df_prophet = df.reset_index()[['Date', 'Close']]
     df_prophet.columns = ['ds', 'y']
