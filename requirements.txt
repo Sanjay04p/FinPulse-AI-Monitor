@@ -11,4 +11,3 @@ lxml
 html5lib
 requests
 prophet
-json
