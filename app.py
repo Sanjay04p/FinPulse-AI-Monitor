@@ -63,7 +63,17 @@ with st.spinner('Crunching numbers...'):
         analyzed_news = []
     
     # Process Forecast
-    forecast = forecast_model.generate_forecast(prices, days=7)
+    forecast = None
+    analyzed_news = []                                              
+
+    # ONLY run calculations if we successfully retrieved price data!
+    if prices is not None and not prices.empty:
+        # Process Forecast safely inside the check
+        forecast = forecast_model.generate_forecast(prices, days=7)
+        
+        # (If you have news processing code, place it here too)
+    else:
+        st.warning("⚠️ Could not retrieve market data. Please check the ticker symbol or try again later.")
 
 # --- TOP ROW: KPI METRICS ---
 if prices is not None and not prices.empty:
