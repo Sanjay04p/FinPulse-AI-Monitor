@@ -33,7 +33,14 @@ except Exception as e:
 
 # --- SIDEBAR ---
 st.sidebar.header("⚙️ Dashboard Settings")
-available_tickers = data.get_ticker_list()
+try:
+    # Call the new function name
+    available_tickers = data.get_all_us_tickers()
+except Exception as e:
+    # If anything fails, provide a fallback list so the app doesn't break
+    available_tickers = ["AAPL", "MSFT", "GOOGL", "NVDA"]
+    # Show a clean, user-friendly error message on the UI instead of a traceback
+    st.error("⚠️ We had trouble loading the full ticker list from the SEC. Showing default tickers instead.")
 ticker = st.sidebar.selectbox(
     "Select Asset", 
     options=available_tickers, 
