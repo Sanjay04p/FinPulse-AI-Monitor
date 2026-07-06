@@ -1,6 +1,8 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
+torchvision
 finnhub-python 
 transformers 
-torch
 python-dotenv
 streamlit 
 yfinance
@@ -9,5 +11,4 @@ lxml
 html5lib
 requests
 prophet
-torchvision
 json
