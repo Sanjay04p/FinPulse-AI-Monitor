@@ -4,7 +4,7 @@ load_dotenv()
 api_key = os.getenv("finnhub_API")
 import finnhub
 from datetime import datetime, timedelta
-import yfinance as yf
+# import yfinance as yf
 import pandas as pd
 import streamlit as st
 import requests       
