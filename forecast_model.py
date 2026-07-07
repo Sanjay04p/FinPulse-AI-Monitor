@@ -13,7 +13,7 @@ def generate_forecast(df, days=7):
     # 1. Prepare Data
     df_prophet = df.reset_index()[['Date', 'Close']]
     df_prophet.columns = ['ds', 'y']
-    df_prophet['ds'] = df_prophet['ds'].dt.tz_localize(None)
+    df_prophet['ds'] = pd.to_datetime(df_prophet['ds']).dt.tz_localize(None)
 
     # 2. Train the Model
     m = Prophet(daily_seasonality=True)
