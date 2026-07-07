@@ -46,27 +46,30 @@ def get_ticker_list():
     """
     Fetches S&P 500 tickers using a 'User-Agent' to avoid 403 Forbidden errors.
     """
-    url = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
+    url = "https://www.sec.gov/files/company_tickers.json"
     
     headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+        "User-Agent": "FinPulse_AI_Project developer@finpulse.local"
     }
 
     try:
         # 1. Send GET request with headers
         response = requests.get(url, headers=headers)
-        response.raise_for_status()  # Check if request was successful
+        response.raise_for_status() 
         
-        # 3. Pass the HTML text to pandas
-        tables = pd.read_html(io.StringIO(response.text))
+        # 2. Parse the JSON response directly
+        data = response.json()
         
-        # 4. Extract symbols
-        df = tables[0]
-        tickers = df['Symbol'].tolist()
+        # 3. The SEC returns a dictionary of dictionaries. 
+        # We can easily convert this nested structure into a Pandas DataFrame.
+        df = pd.DataFrame.from_dict(data, orient='index')
+        
+        # 4. Extract just the 'ticker' column and convert it to a sorted list
+        tickers = df['ticker'].tolist()
         return sorted(tickers)
         
     except Exception as e:
-        print(f"Scraping failed: {e}")
+        print(f"Failed to fetch from SEC: {e}")
         return ["NVDA", "TSLA", "AAPL", "MSFT", "GOOGL", "AMZN", "META", "AMD", "NFLX"]
 
   
