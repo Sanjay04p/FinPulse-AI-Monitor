@@ -9,7 +9,6 @@ import pandas as pd
 import streamlit as st
 import requests       
 import io
-import json
 
 def init_finnhub(api_key):
     return finnhub.Client(api_key=api_key)
@@ -43,39 +42,31 @@ def get_latest_news(client, ticker):
         return []
 
 @st.cache_data
-def get_all_us_tickers():
+def get_ticker_list():
     """
-    Fetches a comprehensive list of all publicly traded US tickers directly from the SEC.
-    Returns a sorted list of thousands of ticker symbols.
+    Fetches S&P 500 tickers using a 'User-Agent' to avoid 403 Forbidden errors.
     """
-    # The SEC's official and public JSON file for company tickers
-    url = "https://www.sec.gov/files/company_tickers.json"
+    url = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
     
-    # The SEC strictly requires a User-Agent to prevent bot spam. 
-    # It's best practice to use a format like: "YourName your@email.com"
     headers = {
-    "User-Agent": "FinPulse_AI_Project developer@finpulse.local"
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
     }
 
     try:
         # 1. Send GET request with headers
         response = requests.get(url, headers=headers)
-        response.raise_for_status() 
+        response.raise_for_status()  # Check if request was successful
         
-        # 2. Parse the JSON response directly
-        data = response.json()
+        # 3. Pass the HTML text to pandas
+        tables = pd.read_html(io.StringIO(response.text))
         
-        # 3. The SEC returns a dictionary of dictionaries. 
-        # We can easily convert this nested structure into a Pandas DataFrame.
-        df = pd.DataFrame.from_dict(data, orient='index')
-        
-        # 4. Extract just the 'ticker' column and convert it to a sorted list
-        tickers = df['ticker'].tolist()
+        # 4. Extract symbols
+        df = tables[0]
+        tickers = df['Symbol'].tolist()
         return sorted(tickers)
         
     except Exception as e:
-        print(f"Failed to fetch from SEC: {e}")
-        # Fallback to a few major ones just in case of failure
-        return ["NVDA", "TSLA", "AAPL", "MSFT", "GOOGL"]
+        print(f"Scraping failed: {e}")
+        return ["NVDA", "TSLA", "AAPL", "MSFT", "GOOGL", "AMZN", "META", "AMD", "NFLX"]
 
   
