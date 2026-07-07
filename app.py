@@ -33,14 +33,7 @@ except Exception as e:
 
 # --- SIDEBAR ---
 st.sidebar.header("⚙️ Dashboard Settings")
-try:
-    # Call the new function name
-    available_tickers = data.get_all_us_tickers()
-except Exception as e:
-    # If anything fails, provide a fallback list so the app doesn't break
-    available_tickers = ["AAPL", "MSFT", "GOOGL", "NVDA"]
-    # Show a clean, user-friendly error message on the UI instead of a traceback
-    st.error("⚠️ We had trouble loading the full ticker list from the SEC. Showing default tickers instead.")
+available_tickers = data.get_ticker_list()
 ticker = st.sidebar.selectbox(
     "Select Asset", 
     options=available_tickers, 
@@ -63,17 +56,7 @@ with st.spinner('Crunching numbers...'):
         analyzed_news = []
     
     # Process Forecast
-    forecast = None
-    analyzed_news = []                                              
-
-    # ONLY run calculations if we successfully retrieved price data!
-    if prices is not None and not prices.empty:
-        # Process Forecast safely inside the check
-        forecast = forecast_model.generate_forecast(prices, days=7)
-        
-        # (If you have news processing code, place it here too)
-    else:
-        st.warning("⚠️ Could not retrieve market data. Please check the ticker symbol or try again later.")
+    forecast = forecast_model.generate_forecast(prices, days=7)
 
 # --- TOP ROW: KPI METRICS ---
 if prices is not None and not prices.empty:
