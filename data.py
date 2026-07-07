@@ -9,26 +9,40 @@ import pandas as pd
 import streamlit as st
 import requests       
 import io
+import time
+import random
+import datetime as dt
 
 def init_finnhub(api_key):
     return finnhub.Client(api_key=api_key)
 
-def get_historical_prices(ticker, days=30):
+@st.cache_data(ttl=900)
+def get_historical_prices(ticker, days=30,max_retries=3):
     """
     Fetches stock price data.
     FIX: Uses .history() to avoid the 'MultiIndex' bug in yfinance.
     """
-    try:
-        
-        stock = yf.Ticker(ticker)
-        df = stock.history(period=f"{days}d", interval="1d")
-        if df.empty:
-            return None
-            
-        return df
-    except Exception as e:
-        print(f"Error fetching prices: {e}")
-        return None
+    end_date = dt.datetime.now()
+    start_date = end_date - dt.timedelta(days=days)
+
+    for attempt in range(max_retries):
+        try:
+            stock = yf.Ticker(ticker)
+            df = stock.history(start=start_date, end=end_date, interval="1d")
+
+            if df.empty:
+                print(f"No data returned for {ticker} (attempt {attempt + 1})")
+            else:
+                return df
+
+        except Exception as e:
+            print(f"Error fetching prices for {ticker} (attempt {attempt + 1}): {e}")
+
+        if attempt < max_retries - 1:
+            time.sleep((2 ** attempt) + random.uniform(0, 1))  # exponential backoff + jitter
+
+    return None
+
 
 def get_latest_news(client, ticker):
     """Fetches the last 7 days of news from Finnhub."""
