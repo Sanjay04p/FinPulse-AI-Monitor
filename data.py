@@ -9,25 +9,69 @@ import pandas as pd
 import streamlit as st
 import requests       
 import io
+import time
 
 def init_finnhub(api_key):
     return finnhub.Client(api_key=api_key)
 
-def get_historical_prices(ticker, days=30):
+def get_historical_prices(ticker_symbol, days=30):
     """
-    Fetches stock price data.
-    FIX: Uses .history() to avoid the 'MultiIndex' bug in yfinance.
+    Fetches historical daily price data using the Finnhub Stock Candles endpoint.
+    Formats the output to perfectly mimic a yfinance DataFrame structure.
     """
+    # Reuse the Finnhub API Key already configured for news extraction
+    api_key = os.getenv("FINNHUB_API_KEY") or st.secrets.get("FINNHUB_API_KEY")
+    
+    if not api_key:
+        print("Error: FINNHUB_API_KEY is missing from environment secrets.")
+        return None
+
+    # Finnhub requires UNIX timestamps for range boundaries
+    end_timestamp = int(time.time())
+    # Add an extra 10-day buffer to guarantee enough trading days after filtering weekends
+    start_timestamp = end_timestamp - (days + 10) * 86400 
+
+    url = "https://finnhub.io/api/v1/stock/candle"
+    params = {
+        "symbol": ticker_symbol.upper(),
+        "resolution": "D",  # 'D' specifies Daily intervals
+        "from": start_timestamp,
+        "to": end_timestamp,
+        "token": api_key
+    }
+
     try:
-        
-        stock = yf.Ticker(ticker)
-        df = stock.history(period=f"{days}d", interval="1d")
-        if df.empty:
+        response = requests.get(url, params=params)
+        response.raise_for_status()
+        data = response.json()
+
+        # Finnhub returns {"s": "no_data"} if the ticker is invalid or unlisted
+        if data.get("s") != "ok":
+            print(f"Finnhub API returned status: {data.get('s')} for ticker {ticker_symbol}")
             return None
-            
-        return df
+
+        # Finnhub returns raw lists compressed into single-letter keys:
+        # t = timestamp, c = close, o = open, h = high, l = low, v = volume
+        df = pd.DataFrame({
+            "Date": pd.to_datetime(data["t"], unit="s"),
+            "Close": data["c"],
+            "Open": data["o"],
+            "High": data["h"],
+            "Low": data["l"],
+            "Volume": data["v"]
+        })
+
+        # Set the 'Date' column as the index to match historical yfinance outputs
+        df.set_index("Date", inplace=True)
+        
+        # Strip timezones right away to keep Prophet's training function happy
+        df.index = df.index.tz_localize(None)
+
+        # Return exactly the number of rows requested by the user interface
+        return df.tail(days)
+
     except Exception as e:
-        print(f"Error fetching prices: {e}")
+        print(f"Finnhub historical candle lookup failed: {e}")
         return None
 
 def get_latest_news(client, ticker):
