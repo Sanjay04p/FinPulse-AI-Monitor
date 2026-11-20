@@ -14,7 +14,8 @@ def generate_forecast(df, days=7):
     df_prophet = df.reset_index()[['Date', 'Close']]
     df_prophet.columns = ['ds', 'y']
     df_prophet['ds'] = pd.to_datetime(df_prophet['ds']).dt.tz_localize(None)
-
+    if len(df_prophet) < 2:
+        return None
     # 2. Train the Model
     m = Prophet(daily_seasonality=True)
     m.fit(df_prophet)
