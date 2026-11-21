@@ -51,7 +51,8 @@ for message in resource_errors:
     st.warning(message)
 
 
-# --- AVAILABLE ASSETS ---
+# --- SIDEBAR ---
+st.sidebar.header(":material/settings: Dashboard Settings")
 try:
     available_tickers = data.get_ticker_list()
     if not available_tickers:
@@ -62,46 +63,16 @@ except Exception:
     st.stop()
 
 
+ticker = st.sidebar.selectbox(
+    "Select Asset",
+    options=available_tickers,
+    index=available_tickers.index("GOOG") if "GOOG" in available_tickers else 0
+)
+days = st.sidebar.slider("Analysis Window (Days)", 30, 365, 90)
+
+
 # --- DATA LOADING ---
 st.title(":material/monitoring: AI Stock Monitor")
-
-search_col, days_col = st.columns([3, 1])
-
-with search_col:
-    default_ticker = "GOOG" if "GOOG" in available_tickers else available_tickers[0]
-    if "selected_ticker" not in st.session_state:
-        st.session_state.selected_ticker = default_ticker
-
-    with st.form("asset_search_form", border=False):
-        asset_query = st.text_input(
-            "Search asset",
-            value=st.session_state.selected_ticker,
-            placeholder="Type a ticker, e.g. AAPL or TSLA",
-            label_visibility="collapsed"
-        )
-        search_submitted = st.form_submit_button("Search")
-
-    if search_submitted:
-        normalized_query = asset_query.strip().upper()
-        matches = [
-            asset for asset in available_tickers
-            if normalized_query in asset.upper()
-        ] if normalized_query else []
-
-        if normalized_query in available_tickers:
-            st.session_state.selected_ticker = normalized_query
-        elif len(matches) == 1:
-            st.session_state.selected_ticker = matches[0]
-        elif matches:
-            st.warning(f"Multiple assets match: {', '.join(matches[:8])}. Enter the exact ticker.")
-        else:
-            st.warning("Asset not found. Enter a valid ticker symbol.")
-
-    ticker = st.session_state.selected_ticker
-
-with days_col:
-    days = st.slider("Analysis Window (Days)", 30, 365, 90)
-
 prices = None
 raw_news = None
 analyzed_news = []
