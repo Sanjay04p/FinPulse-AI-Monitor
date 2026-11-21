@@ -11,8 +11,13 @@ import data
 import model
 import forecast_model
 
-# --- CONFIG ---
-st.set_page_config(page_title="AI Stock Monitor", layout="wide")
+# --- PAGE CONFIGURATION ---
+st.set_page_config(
+    page_title="AI Stock Monitor", 
+    page_icon=":material/monitoring:",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
 # --- CACHING ---
 @st.cache_resource
